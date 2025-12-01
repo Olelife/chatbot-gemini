@@ -1,75 +1,91 @@
-from fastapi import FastAPI, Request
-from google.cloud import storage
-import pandas as pd
-from vertexai.generative_models import GenerativeModel
-import vertexai
+from fastapi import FastAPI
+from pydantic import BaseModel
 import os
+import pandas as pd
+from google.cloud import storage
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import vertexai
+from vertexai.building_blocks import TextEmbeddingModel
+from vertexai.generative_models import GenerativeModel
+
+# ================================
+# CONFIG UP
+# ================================
+PROJECT_ID = os.environ.get("PROJECT_ID", "olelifetech")
+LOCATION = "us-central1"
+BUCKET = os.environ.get("BUCKET", "olelife-lakehouse")
+FILE_NAME = os.environ.get("FILE_NAME", "gemini-ai/bd_conocimiento.xlsx")
+
+EMBED_MODEL = "text-embedding-004"
+GEN_MODEL = "gemini-1.5-pro"
+
+vertexai.init(project=PROJECT_ID, location=LOCATION)
+
+embed_model = TextEmbeddingModel.from_pretrained(EMBED_MODEL)
+gen_model = GenerativeModel(GEN_MODEL)
 
 app = FastAPI()
 
-PROJECT_ID = os.environ.get("PROJECT_ID", "olelifetech")
-BUCKET = os.environ.get("BUCKET", "olelife-lakehouse")
+# ====== VAR GLOBALES ======
+chunks = None
+chunk_embeddings = None
 
-# PATH CORRECTO: carpeta + archivo
-FILE_NAME = os.environ.get("FILE_NAME", "gemini-ai/bd_conocimiento.xlsx")
+def load_excel_from_gcs(bucket, path):
+    client = storage.Client()
+    bucket = client.bucket(bucket)
+    blob = bucket.blob(path)
+    data = blob.download_as_bytes()
+    return pd.read_excel(data)
 
-vertexai.init(project=PROJECT_ID, location="us-central1")
-model = GenerativeModel("gemini-1.5-pro")
+def chunk_text(text, max_chars=600):
+    return [text[i:i+max_chars] for i in range(0, len(text), max_chars)]
 
-def load_kb():
-    try:
-        storage_client = storage.Client()
-        bucket = storage_client.get_bucket(BUCKET)
-        blob = bucket.blob(FILE_NAME)
+def embed(text):
+    emb = embed_model.get_embeddings([text])
+    return np.array(emb[0].values)
 
-        # Cloud Run SOLO permite /tmp
-        local_file = "/tmp/bd_conocimiento.xlsx"
-        blob.download_to_filename(local_file)
-
-        df = pd.read_excel(local_file)
-
-        if "titulo" not in df.columns or "contenido" not in df.columns:
-            raise Exception("El Excel debe tener columnas: titulo, contenido")
-
-        return df
-
-    except Exception as e:
-        print("ERROR CARGANDO EXCEL:", e)
-        return pd.DataFrame(columns=["titulo", "contenido"])
-
-KB = load_kb()
-
-def search_kb(question: str):
-    if KB.empty:
-        return "No existe información en la base de conocimiento."
-
-    question_low = question.lower()
-    results = []
-
-    for _, row in KB.iterrows():
-        score = question_low.count(str(row["titulo"]).lower())
-        results.append((score, row["contenido"]))
-
-    results = sorted(results, reverse=True)
-    return results[0][1] if results else "No encontré información relacionada."
+# ================================
+# ENDPOINT
+# ================================
+class Question(BaseModel):
+    question: str
 
 @app.post("/ask")
-async def ask(req: Request):
-    data = await req.json()
-    question = data["question"]
+def ask(q: Question):
+    global chunks, chunk_embeddings
 
-    context = search_kb(question)
+    # ============ 1. Cargar SOLO la 1ra vez ============
+    if chunks is None or chunk_embeddings is None:
+        df = load_excel_from_gcs(BUCKET, FILE_NAME)
+        full_text = "\n".join([str(x) for x in df.values.flatten() if pd.notnull(x)])
+        chunks = chunk_text(full_text)
+        chunk_embeddings = np.vstack([embed(c) for c in chunks])
+
+    # ============ 2. RAG SEARCH ============
+    query_emb = embed(q.question).reshape(1, -1)
+    scores = cosine_similarity(query_emb, chunk_embeddings)[0]
+
+    top_idx = scores.argsort()[-3:][::-1]
+    retrieved_chunks = [chunks[i] for i in top_idx]
+
+    context = "\n\n".join(retrieved_chunks)
 
     prompt = f"""
-    Usa exclusivamente esta base de conocimiento para responder.
-    CONTEXTO:
-    {context}
+Usa SOLO el siguiente contexto para responder.
 
-    Pregunta:
-    {question}
+=== CONTEXTO ===
+{context}
 
-    Respuesta concreta basada SOLO en el contexto:
-    """
+=== PREGUNTA ===
+{q.question}
 
-    response = model.generate_content(prompt)
-    return {"answer": response.text}
+=== RESPUESTA ===
+"""
+
+    llm_response = gen_model.generate_content(prompt)
+
+    return {
+        "answer": llm_response.text,
+        "chunks_used": retrieved_chunks
+    }
