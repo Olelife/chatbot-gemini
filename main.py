@@ -6,7 +6,7 @@ from google.cloud import storage
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import vertexai
-from vertexai.building_blocks import TextEmbeddingModel
+from vertexai.language_models import TextEmbeddingModel  # ← CAMBIO AQUÍ
 from vertexai.generative_models import GenerativeModel
 import logging
 
@@ -39,8 +39,8 @@ chunk_embeddings = None
 def load_excel_from_gcs(bucket, path):
     logger.info(f"Loading Excel from gs://{bucket}/{path}")
     client = storage.Client()
-    bucket = client.bucket(bucket)
-    blob = bucket.blob(path)
+    bucket_obj = client.bucket(bucket)
+    blob = bucket_obj.blob(path)
     data = blob.download_as_bytes()
     logger.info("Excel loaded successfully")
     return pd.read_excel(data)
@@ -105,9 +105,6 @@ Usa SOLO el siguiente contexto para responder.
         logger.error(f"Error processing question: {str(e)}")
         return {"error": str(e)}, 500
 
-# ================================
-# Startup event
-# ================================
 @app.on_event("startup")
 async def startup_event():
     logger.info("Application startup complete")
