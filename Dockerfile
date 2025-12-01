@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Copiar archivos primero
+# Copiar requirements primero para aprovechar caché
 COPY requirements.txt .
 
 # Instalar dependencias del sistema
@@ -14,13 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar dependencias de Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto del código
+# Copiar el código
 COPY . .
 
-# Exponer puerto
+# Puerto
 EXPOSE 8080
 
-# CORRECCIÓN: Sin '=' en los argumentos
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Comando para iniciar
+CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --log-level info
