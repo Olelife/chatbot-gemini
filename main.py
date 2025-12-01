@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
 import pandas as pd
@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ================================
-# CONFIG UP
+# CONFIG UPP
 # ================================
 PROJECT_ID = os.environ.get("PROJECT_ID", "olelifetech")
 LOCATION = "us-central1"
@@ -103,7 +103,8 @@ Usa SOLO el siguiente contexto para responder.
         }
     except Exception as e:
         logger.error(f"Error processing question: {str(e)}")
-        return {"error": str(e)}, 500
+        #return {"error": str(e)}, 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.on_event("startup")
 async def startup_event():
