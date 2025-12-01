@@ -6,11 +6,12 @@ from google.cloud import storage
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import vertexai
-from vertexai.language_models import TextEmbeddingModel  # ← CAMBIO AQUÍ
+from vertexai.preview.language_models import TextEmbeddingModel
+#from vertexai.language_models import TextEmbeddingModel  # ← CAMBIO AQUÍ
 from vertexai.generative_models import GenerativeModel
 import logging
 
-# Configurar logging
+# Configurar loggingßßß
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
