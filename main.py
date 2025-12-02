@@ -6,8 +6,8 @@ from google.cloud import storage
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import vertexai
-from vertexai.preview.language_models import TextEmbeddingModel
-#from vertexai.language_models import TextEmbeddingModel  # ← CAMBIO AQUÍ
+#from vertexai.preview.language_models import TextEmbeddingModel
+from vertexai.language_models import TextEmbeddingModel  # ← CAMBIO AQUÍ
 from vertexai.generative_models import GenerativeModel
 import logging
 
