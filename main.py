@@ -31,6 +31,10 @@ embed_model = TextEmbeddingModel.from_pretrained(EMBED_MODEL)
 gen_model = GenerativeModel(GEN_MODEL)
 logger.info("Vertex AI initialized successfully")
 
+print("### BACKEND VERSION EJECUTÁNDOSE: v100 ###")
+print("### EMBEDDING IMPORT:", TextEmbeddingModel)
+print("### GEMINI MODEL:", GEN_MODEL)
+
 app = FastAPI()
 
 # ====== VAR GLOBALES ======
