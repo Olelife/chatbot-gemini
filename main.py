@@ -24,7 +24,7 @@ LOCATION = "us-central1"
 BUCKET = os.environ.get("BUCKET", "olelife-lakehouse")
 FILE_NAME = os.environ.get("FILE_NAME", "gemini-ai/bd_conocimiento.xlsx")
 EMBED_MODEL = "text-embedding-005"
-GEN_MODEL = "models/gemini-2.0-pro" ## "gemini-1.5-pro" ## 
+GEN_MODEL = "models/gemini-1.5-pro-002" ## "gemini-1.5-pro" ## 
 
 logger.info(f"Initializing Vertex AI with project: {PROJECT_ID}")
 vertexai.init(project=PROJECT_ID, location=LOCATION)
