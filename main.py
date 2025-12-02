@@ -6,8 +6,7 @@ from google.cloud import storage
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import vertexai
-from vertexai.preview.language_models import TextEmbeddingModel as PreviewEmbedModel
-from vertexai.language_models import TextEmbeddingModel  # ← CAMBIO AQUÍ
+from vertexai.language_models import TextEmbeddingModel  
 from vertexai.generative_models import GenerativeModel
 import google.cloud.aiplatform
 import logging
@@ -31,11 +30,6 @@ vertexai.init(project=PROJECT_ID, location=LOCATION)
 embed_model = TextEmbeddingModel.from_pretrained(EMBED_MODEL)
 gen_model = GenerativeModel(GEN_MODEL)
 logger.info("Vertex AI initialized successfully")
-
-logger.info(f"### AIPLATFORM VERSION: {google.cloud.aiplatform.__version__}")
-logger.info(f"### EMBEDDING API: {TextEmbeddingModel}")
-logger.info(f"### EMBEDDING PREVIEW API: {PreviewEmbedModel}")
-logger.info(f"### GEMINI MODEL PATH: {GEN_MODEL}")
 
 app = FastAPI()
 
