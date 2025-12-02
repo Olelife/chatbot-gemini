@@ -1,0 +1,25 @@
+LOCAL:
+
+1️⃣ Instala Google Cloud SDK (si no lo tienes)
+
+https://cloud.google.com/sdk/docs/install
+
+2️⃣ Autentícate en tu cuenta
+
+En tu terminal:
+
+gcloud auth login
+
+Esto abre un navegador → seleccionas tu cuenta GCP.
+
+3️⃣ Configura el proyecto
+gcloud config set project olelifetech
+
+4️⃣ Genera las Application Default Credentials (ADC)
+gcloud auth application-default login
+
+Esto crea un archivo en:
+
+~/.config/gcloud/application_default_credentials.json
+
+➡️ Vertex AI usará automáticamente ese archivo.

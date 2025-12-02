@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
@@ -30,6 +32,12 @@ vertexai.init(project=PROJECT_ID, location=LOCATION)
 embed_model = TextEmbeddingModel.from_pretrained(EMBED_MODEL)
 gen_model = GenerativeModel(GEN_MODEL)
 logger.info("Vertex AI initialized successfully")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Application startup complete")
+    yield
+    logger.info("Application shutdown complete")
 
 app = FastAPI()
 
@@ -107,7 +115,11 @@ Usa SOLO el siguiente contexto para responder.
         #return {"error": str(e)}, 500
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.on_event("startup")
-async def startup_event():
-    logger.info("Application startup complete")
-    logger.info(f"PORT env var: {os.environ.get('PORT', 'NOT SET')}")
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 8080)),
+        reload=True
+    )
