@@ -88,28 +88,104 @@ def load_file_as_text(bucket: str, path: str) -> str:
     except:
         return str(raw)
 
+def load_file_as_units(bucket: str, path: str) -> List[str]:
+    """
+    Carga un archivo JSON y lo convierte en chunks semánticos completos.
+    Las coberturas se agrupan en un solo chunk.
+    Diccionarios se mantienen como una unidad completa.
+    Listas generan un chunk por elemento.
+    No se divide por claves individuales.
+    """
 
-def build_knowledge_text_from_folder(bucket: str, root_folder: str) -> str:
-    """Lee todos los archivos dentro de gemini-ai/knowledge y concatena su contenido."""
-    logger.info(f"Loading knowledge from folder: gs://{bucket}/{root_folder}")
+    client = storage.Client()
+    bucket_obj = client.bucket(bucket)
+    blob = bucket_obj.blob(path)
 
+    if not blob.exists():
+        return []
+
+    raw = blob.download_as_bytes()
+
+    # Archivos que no son JSON → chunk único
+    if not path.endswith(".json"):
+        text = raw.decode("utf-8", errors="ignore")
+        return [text] if text.strip() else []
+
+    import json
+    try:
+        data = json.loads(raw.decode("utf-8"))
+    except:
+        return []
+
+    units = []
+
+    # -----------------------------
+    # CASO 1: JSON es LISTA
+    # -----------------------------
+    if isinstance(data, list):
+        for entry in data:
+            nombre = (
+                entry.get("nombre")
+                or entry.get("titulo")
+                or entry.get("id")
+                or "ITEM"
+            )
+            block = (
+                f"## ITEM: {nombre}\n\n"
+                f"{json.dumps(entry, ensure_ascii=False, indent=2)}"
+            )
+            units.append(block)
+
+        return units
+
+    # -----------------------------
+    # CASO 2: JSON es DICCIONARIO
+    # -----------------------------
+    if isinstance(data, dict):
+
+        # Detectar archivos de COBERTURAS (muy importante)
+        if "coberturas" in path or "cobertura" in path:
+            nombre = (
+                data.get("nombre")
+                or data.get("id")
+                or os.path.basename(path).replace(".json", "")
+            )
+
+            block = (
+                f"## COBERTURA: {nombre}\n\n"
+                f"{json.dumps(data, ensure_ascii=False, indent=2)}"
+            )
+            return [block]
+
+        # Archivos tipo secciones (faq, operativa, lists, etc.)
+        nombre = os.path.basename(path).replace(".json", "").upper()
+
+        block = (
+            f"## SECCIÓN: {nombre}\n\n"
+            f"{json.dumps(data, ensure_ascii=False, indent=2)}"
+        )
+        return [block]
+
+    # Último recurso: chunk único
+    return [json.dumps(data)]
+
+def build_knowledge_units_from_folder(bucket: str, root_folder: str) -> List[str]:
+    """
+    Construye chunks semánticos desde múltiples archivos JSON/texto
+    dentro del folder knowledge/.
+    """
     files = list_files_in_folder(bucket, root_folder)
-    logger.info(f"Found {len(files)} knowledge files")
-
-    all_texts = []
+    all_units = []
 
     for f in files:
         if "prompts" in f:
             continue
 
-        text = load_file_as_text(bucket, f)
-        if text.strip():
-            all_texts.append(text)
+        units = load_file_as_units(bucket, f)
+        all_units.extend(units)
 
-    full_text = "\n\n".join(all_texts)
-    logger.info("Knowledge folder loaded successfully.")
-    return full_text
-
+    logger.info(f"Knowledge units created: {len(all_units)}")
+    return all_units
 
 # ================================
 # CACHE
@@ -240,8 +316,8 @@ def build_or_load_knowledge_base():
     # 3) Construir desde knowledge/
     logger.info("Building KB from raw JSON knowledge folder…")
 
-    full_text = build_knowledge_text_from_folder(BUCKET, KNOWLEDGE_FOLDER)
-    kb_chunks = chunk_text(full_text)
+    kb_chunks = build_knowledge_units_from_folder(BUCKET, KNOWLEDGE_FOLDER)
+    logger.info(f"KB semantic chunks: {len(kb_chunks)}")
     kb_embeddings = embed_texts(kb_chunks)
 
     save_cache_local(kb_chunks, kb_embeddings)
@@ -292,20 +368,60 @@ def ask(q: Question):
         context = "\n\n".join(retrieved_chunks)
 
         prompt = f"""
-Eres **Coach OleLife**, un asistente experto en seguros de vida, procesos de cotización
-y experiencia digital. Tu estilo es cálido, claro, profesional y didáctico.
+Soy **Coach OleLife**, tu asistente profesional especializado en seguros de vida,
+procesos operativos y uso de la plataforma OleLife. Estoy aquí para ayudarte de
+forma clara, confiable y precisa.
 
-NO inventes información. Usa SOLO el contexto.
-Si no está en el contexto, dilo amablemente.
+Mi estilo es:
+- corporativo y profesional (como un asesor experto de OleLife)
+- cálido y humano sin usar frases genéricas ni repetitivas
+- en primera persona (“te explico”, “puedo ayudarte”, “esto aplica en tu caso”)
+- flexible, directo y contextual según la conversación
 
-==================== CONTEXTO ====================
-{context}
 ==================================================
+REGLAS DE COMPORTAMIENTO
+==================================================
+1. Respondo **solo** con lo que esté en el contexto recuperado; no invento datos.
+2. Si existe más de una edad, requisito o regla:
+   - explico cada una por cobertura o sección correspondiente
+   - nunca mezclo valores de coberturas diferentes
+3. Si la información no está en el contexto:
+   - digo: “Según la información disponible, no tengo una respuesta exacta para eso…”
+4. Si el usuario me pide guiarlo (ej. cotizar o seguir un proceso):
+   - formulo preguntas en orden lógico
+   - pido un dato por vez
+   - mantengo claridad y precisión en las instrucciones
+5. **Memoria conversacional ligera:**
+   - detecto si el usuario está siguiendo un hilo del tema
+   - evito repetir información que ya mencioné en esta conversación
+   - no uso saludos en turnos posteriores
+   - adapto el detalle según lo ya conversado
+   - si el usuario pide una aclaración, solo amplío lo necesario
+6. Variación conversacional:
+   - no empiezo siempre igual
+   - puedo usar distintas formas de introducir una respuesta:
+     “Sobre ese punto…”, “Esto es lo que aplica…”, “Según el contexto…”
+7. Tono corporativo humano:
+   - comunico claridad, profesionalismo y confianza
+   - uso listas solo cuando ayudan a la comprensión
+   - evito tecnicismos innecesarios, explico en lenguaje simple
 
-Pregunta del usuario:
+==================================================
+CONTEXTO CERTIFICADO (RAG)
+==================================================
+Este contenido fue recuperado desde la base de conocimiento oficial.
+Toda la respuesta debe basarse estrictamente en esto.
+
+{context}
+
+===============================
+PREGUNTA DEL USUARIO
+===============================
 {q.question}
 
-Responde de forma clara, precisa y útil.
+===============================
+RESPUESTA
+===============================
 """
 
         answer = generate_answer(prompt)
@@ -453,6 +569,58 @@ def debug_config():
         config["embedding_dim"] = int(chunk_embeddings.shape[1])
 
     return config
+
+@app.get("/explain-search")
+def explain_search(q: str):
+    """
+    Explica paso por paso cómo funciona la búsqueda vectorial.
+    No llama al modelo generativo.
+    """
+    global chunks, chunk_embeddings, kb_metadata
+
+    if chunks is None:
+        chunks, chunk_embeddings, kb_metadata = build_or_load_knowledge_base()
+
+    try:
+        # 1) Embedding de la query
+        query_embedding = embed_single(q)
+
+        # 2) Similaridad coseno contra todos los chunks
+        scores = cosine_similarity(
+            query_embedding.reshape(1, -1),
+            chunk_embeddings
+        )[0]
+
+        # 3) Top 5 chunks relevantes
+        top_idx = scores.argsort()[-5:][::-1]
+
+        detailed = []
+        for idx in top_idx:
+            detailed.append({
+                "chunk_index": int(idx),
+                "score": float(scores[idx]),
+                "text_preview": chunks[idx][:300],
+                "reason": "Alta similitud coseno respecto a la consulta."
+            })
+
+        return {
+            "query": q,
+            "query_embedding_preview": list(query_embedding[:10]), # primeros 10 valores
+            "total_chunks": len(chunks),
+            "top_matches": detailed,
+            "max_score": float(scores[top_idx[0]]),
+            "min_score": float(scores.min()),
+            "avg_score": float(scores.mean()),
+            "notes": [
+                "Este endpoint no usa el modelo generativo.",
+                "Solo evalúa embeddings + similitud coseno.",
+                "Útil para tuning de RAG."
+            ]
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
 
 if __name__ == "__main__":
     import uvicorn
