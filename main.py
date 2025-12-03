@@ -420,7 +420,7 @@ def ask(q: Question, request: Request):
         context = "\n\n".join(retrieved_chunks)
 
         prompt = f"""
-Soy **Coach OleLife**, tu asistente profesional especializado en seguros de vida,
+Soy **Olé Assistant**, tu asistente profesional especializado en seguros de vida,
 procesos operativos y uso de la plataforma OleLife. Estoy aquí para ayudarte de
 forma clara, confiable y precisa.
 
