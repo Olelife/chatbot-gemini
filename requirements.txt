@@ -9,3 +9,4 @@ openpyxl
 python-dotenv
 pydantic
 google-genai
+psycopg2-binary
