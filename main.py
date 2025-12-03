@@ -59,8 +59,8 @@ chunk_embeddings: Optional[np.ndarray] = None
 def get_db_conn():
     return psycopg2.connect(
         host=os.environ.get("API_CHAT_GEMINI_DB_HOST"),
-        user=os.environ.get("API_CHAT_GEMINI_DB_PASS"),
-        password=os.environ.get("API_CHAT_GEMINI_DB_USER"),
+        user=os.environ.get("API_CHAT_GEMINI_DB_USER"),
+        password=os.environ.get("API_CHAT_GEMINI_DB_PASS"),
         database='ole-db-ia',
         cursor_factory=psycopg2.extras.RealDictCursor
     )
