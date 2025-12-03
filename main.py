@@ -1,3 +1,4 @@
+import json
 import os
 import io
 import logging
@@ -7,7 +8,7 @@ from typing import Optional, Tuple, List
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from sklearn.metrics.pairwise import cosine_similarity
 from google.cloud import storage
@@ -18,6 +19,11 @@ from google.genai import types  # EmbedContentConfig, etc.
 import time
 import hashlib
 from fastapi.middleware.cors import CORSMiddleware
+
+import psycopg2
+import psycopg2.extras
+
+from fastapi import Request
 
 # ================================
 # LOGGING
@@ -47,6 +53,38 @@ genai_client: Optional[genai.Client] = None
 chunks: Optional[List[str]] = None
 chunk_embeddings: Optional[np.ndarray] = None
 
+# ================================
+# DB
+# ================================
+def get_db_conn():
+    return psycopg2.connect(
+        host=os.environ.get("API_CHAT_GEMINI_DB_HOST"),
+        user=os.environ.get("API_CHAT_GEMINI_DB_PASS"),
+        password=os.environ.get("API_CHAT_GEMINI_DB_USER"),
+        database='ole-db-ia',
+        cursor_factory=psycopg2.extras.RealDictCursor
+    )
+
+def log_rag_interaction(question, answer, username, chunks_used, scores, metadata=None):
+    try:
+        conn = get_db_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO rag_logs (question, answer, username, chunks_used, scores, metadata)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, [
+            question,
+            answer,
+            username,
+            json.dumps(chunks_used, ensure_ascii=False),
+            json.dumps(scores),
+            json.dumps(metadata or {})
+        ])
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print("Error logging RAG interaction:", e)
 
 # ================================
 # UTILS GENERALES
@@ -365,7 +403,8 @@ def root():
 
 
 @app.post("/ask")
-def ask(q: Question):
+def ask(q: Question, request: Request):
+    username = request.headers.get("x-username")
     global chunks, chunk_embeddings, kb_metadata
 
     try:
@@ -439,10 +478,28 @@ RESPUESTA
 
         answer = generate_answer(prompt)
 
+        # ==== LOG EN BASE DE DATOS ====
+        scores_list = [
+            {"chunk_index": int(i), "score": float(scores[i])}
+            for i in top_idx
+        ]
+
+        log_rag_interaction(
+            question=q.question,
+            answer=answer,
+            username=username,
+            chunks_used=retrieved_chunks,
+            scores=scores_list,
+            metadata={
+                "ip": request.client.host,
+                "user-agent": request.headers.get("User-Agent"),
+            }
+        )
+
         return {
             "answer": answer,
             "chunks_used": retrieved_chunks,
-            "scores": [float(scores[i]) for i in top_idx],
+            "scores": scores_list
         }
 
     except Exception as e:
