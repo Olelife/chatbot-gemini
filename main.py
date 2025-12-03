@@ -17,6 +17,7 @@ from google.genai import types  # EmbedContentConfig, etc.
 
 import time
 import hashlib
+from fastapi.middleware.cors import CORSMiddleware
 
 # ================================
 # LOGGING
@@ -340,7 +341,19 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+origins = [
+    "*",  # Puedes restringir esto a tus dominios oficiales
+    # "https://olelife.com",
+    # "https://aplicacion.ole-sp.com.mx",
+    # "https://advisor-portal.dev.ole-sp.com.mx",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],       # GET, POST, PUT, DELETE...
+    allow_headers=["*"],       # Authorization, Content-Type...
+)
 
 class Question(BaseModel):
     question: str
