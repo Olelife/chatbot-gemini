@@ -3,7 +3,14 @@ from fastapi.responses import JSONResponse
 
 def setup_middlewares(app):
 
-    origins = ["*"]
+    origins = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:6006",
+        "https://portal.dev.ole-sp.com.mx",
+        "https://portal.stg.ole-sp.com.mx",
+        "https://portal.ole-sp.com.mx",
+    ]
 
     # CORS
     app.add_middleware(
@@ -17,6 +24,8 @@ def setup_middlewares(app):
     # Header "x-username" obligatorio
     @app.middleware("http")
     async def require_username(request, call_next):
+        if request.method == "OPTIONS":
+            return await call_next(request)
         username = request.headers.get("x-username")
         if not username:
             return JSONResponse(
