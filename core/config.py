@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     KNOWLEDGE_FOLDER: str = "gemini-ai/knowledge"
 
     EMBED_MODEL: str = "gemini-embedding-001"
-    GEN_MODEL: str = "gemini-2.5-flash"
+    GEN_MODEL: str = "gemini-2.5-pro"
 
     CACHE_LOCAL_PATH: str = "/tmp/embedding_cache.pkl"
     CACHE_GCS_PATH: str = "gemini-ai/embedding_cache.pkl"
