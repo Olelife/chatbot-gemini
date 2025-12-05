@@ -22,5 +22,6 @@ COPY . .
 
 # Puerto
 EXPOSE 8080
+
 # Comando para iniciar
 CMD exec uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080} --log-level info
