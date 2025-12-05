@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     BUCKET: str = "olelife-lakehouse"
     KNOWLEDGE_FOLDER: str = "gemini-ai/knowledge"
 
-    EMBED_MODEL: str = "text-embedding-004"
+    EMBED_MODEL: str = "gemini-embedding-001"
     GEN_MODEL: str = "gemini-2.5-pro"
 
     CACHE_LOCAL_PATH: str = "/tmp/embedding_cache.pkl"
