@@ -1,0 +1,29 @@
+{
+  "pais": "BR",
+  "producto": "Olé Life Individual Brasil",
+  "edad": {
+    "contratacion_min": 18,
+    "contratacion_max": 70,
+    "cobertura_max": 75,
+    "detalle": "La edad mínima para contratar es 18 años y la máxima 70. La cobertura máxima puede extenderse hasta los 75 años según el plazo contratado."
+  },
+  "suma_asegurada_principal": {
+    "moneda": "USD",
+    "min": 100000,
+    "max": 500000,
+    "step": 10000
+  },
+  "plazos": {
+    "permitidos": [5],
+    "descripcion": "Términos disponibles en años para la póliza."
+  },
+  "frecuencias_pago": {
+    "valores": ["mensual", "anual"],
+    "descripcion": "Frecuencias de pago disponibles."
+  },
+  "coberturas": {
+    "principales": [
+      "fallecimiento"
+    ]
+  }
+}

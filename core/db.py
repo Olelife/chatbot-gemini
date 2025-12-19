@@ -1,13 +1,19 @@
 import psycopg2
-import psycopg2.extras
+from psycopg2.pool import SimpleConnectionPool
 
 from core.config import settings
 
+db_pool = SimpleConnectionPool(
+    minconn=1,
+    maxconn=10,
+    host=settings.API_CHAT_GEMINI_DB_HOST,
+    user=settings.API_CHAT_GEMINI_DB_USER,
+    password=settings.API_CHAT_GEMINI_DB_PASS,
+    database=settings.API_CHAT_GEMINI_DB_NAME
+)
+
 def get_db_conn():
-    return psycopg2.connect(
-        host=settings.API_CHAT_GEMINI_DB_HOST,
-        user=settings.API_CHAT_GEMINI_DB_USER,
-        password=settings.API_CHAT_GEMINI_DB_PASS,
-        database=settings.API_CHAT_GEMINI_DB_NAME,
-        cursor_factory=psycopg2.extras.RealDictCursor
-    )
+    return db_pool.getconn()
+
+def release_conn(conn):
+    db_pool.putconn(conn)

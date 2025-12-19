@@ -1,0 +1,188 @@
+[
+  {
+    "id": "gl_001",
+    "termino": "# de CLABE",
+    "definicion": "Clave bancaria numérica de 18 dígitos que se utiliza en México para identificar cuentas bancarias en transferencias electrónicas.",
+    "tags": []
+  },
+  {
+    "id": "gl_002",
+    "termino": "ABA",
+    "definicion": "Código bancario numérico de 9 dígitos que se utiliza en EE.UU. para identificar bancos en transferencias electrónicas.",
+    "tags": []
+  },
+  {
+    "id": "gl_003",
+    "termino": "Abonado, no abonado, en proceso",
+    "definicion": "Los estados de pago para México son: Activo (Pagado y surtiendo plenamente sus efectos), Pago pendiente y/o Periodo en Gracia (Aunque no esta pagado la póliza está surtiendo plenamente sus efectos), Pago no recibido (se hicieron varios intentos de pago pero no se ha recibido efectivamente) y Cancelada (el pago no se recibió durante todo el periodo de gracia y al día 31 se cancela en automático).",
+    "tags": []
+  },
+  {
+    "id": "gl_004",
+    "termino": "Activación tardía",
+    "definicion": "Cuando se activa una póliza que fue previamente aprobada pero no se pagó en tiempo. Para México surte plenamente sus efectos recién emitida, aun cuando no se haya pagado e incluso durante el periodo de gracia.",
+    "tags": []
+  },
+  {
+    "id": "gl_005",
+    "termino": "Agencia Master",
+    "definicion": "Entidad principal que supervisa y gestiona Promotorías y Agentes/Agencias CNSF subordinadas en el sistema de comisiones de Olé.",
+    "tags": []
+  },
+  {
+    "id": "gl_006",
+    "termino": "Ajuste de comisiones",
+    "definicion": "Modificación o corrección en el cálculo de contraprestaciones o comisiones debido a errores, cambios en las condiciones o ajustes administrativos.",
+    "tags": []
+  },
+  {
+    "id": "gl_007",
+    "termino": "Aplicación en progreso",
+    "definicion": "Solicitud que se encuentra en una etapa de revisión o procesamiento, pero que aún no ha sido completada, ni sometida a la evaluación de riesgo",
+    "tags": []
+  },
+  {
+    "id": "gl_008",
+    "termino": "Asegurado",
+    "definicion": "Persona que posee una póliza de seguro y cuenta con las coberturas contratadas durante la vigencia de la póliza o de los beneficios adicionales específicos.",
+    "tags": []
+  },
+  {
+    "id": "gl_009",
+    "termino": "Agencia / Agente CNFS",
+    "definicion": "Persona encargada de brindar orientación y venta del seguro.",
+    "tags": []
+  },
+  {
+    "id": "gl_010",
+    "termino": "Autorización de depósito directo (domiciliación)",
+    "definicion": "Permiso otorgado por el titular para que los pagos o reembolsos sean depositados automáticamente en su cuenta bancaria.",
+    "tags": []
+  },
+  {
+    "id": "gl_011",
+    "termino": "Aviso por caducidad (lapsado)",
+    "definicion": "Notificación enviada al titular/asegurado informando que su póliza o contrato está próximo a caducar después de haber pasado por el periodo de gracia.",
+    "tags": []
+  },
+  {
+    "id": "gl_012",
+    "termino": "Banco intermediario",
+    "definicion": "Entidad bancaria que facilita transferencias internacionales cuando no existe una conexión directa entre el banco emisor y el receptor.",
+    "tags": []
+  },
+  {
+    "id": "gl_013",
+    "termino": "Bridger Insight XG",
+    "definicion": "Plataforma de cumplimiento para verificar los antecedentes del solicitante que muestra si el solicitante está en alguna lista de sanciones de México, si ha sido identificado por las autoridades por actividades de Lavado de Activos, o si hay algún medio público adverso.",
+    "tags": []
+  },
+  {
+    "id": "gl_014",
+    "termino": "Cambio de jerarquía",
+    "definicion": "Modificación en la estructura organizacional que afecta el nivel o posición de un Agente  o Promotor dentro de un sistema de comisiones.",
+    "tags": []
+  },
+  {
+    "id": "gl_015",
+    "termino": "Cambio de pagador de póliza",
+    "definicion": "Modificación del responsable de realizar los pagos de la póliza que no sea el asegurado.",
+    "tags": []
+  },
+  {
+    "id": "gl_016",
+    "termino": "Cancelación de renovación",
+    "definicion": "Acción de evitar que una póliza se renueve automáticamente al finalizar su período vigente.",
+    "tags": []
+  },
+  {
+    "id": "gl_017",
+    "termino": "Chargeback/Disputa/Contracargo",
+    "definicion": "Reversión de un pago realizada por el procesador de pagos debido a una disputa por parte del cliente.",
+    "tags": []
+  },
+  {
+    "id": "gl_018",
+    "termino": "Chatbot (OLI)",
+    "definicion": "Programa de inteligencia artificial diseñado para responder preguntas y asistir a los usuarios en tiempo real mediante mensajes automatizados.",
+    "tags": []
+  },
+  {
+    "id": "gl_019",
+    "termino": "Cliente",
+    "definicion": "Persona que adquiere o contrata un servicio, en este caso, un seguro.",
+    "tags": []
+  },
+  {
+    "id": "gl_020",
+    "termino": "Código de contrato de distribución",
+    "definicion": "Identificador único asignado a la Agencia Máster, Promotoría o al Agente/Agencia CNSF.",
+    "tags": []
+  },
+  {
+    "id": "gl_021",
+    "termino": "Comisiones",
+    "definicion": "un porcentaje o cantidad de dinero que recibe un Agente/Agencia CNSF por la venta de nuestro producto",
+    "tags": []
+  },
+  {
+    "id": "gl_022",
+    "termino": "Contraprestación",
+    "definicion": "un porcentaje o cantidad de dinero que recibe una Agencia Máster o Promotoría por la recluta de Promotores y/o Agentes/Agencias CNSF, según corresponda",
+    "tags": []
+  },
+  {
+    "id": "gl_023",
+    "termino": "Contraprestaciones y comisiones aprobadas",
+    "definicion": "Pagos o incentivos que han sido validados y autorizados para su procesamiento.",
+    "tags": []
+  },
+  {
+    "id": "gl_024",
+    "termino": "Contraprestaciones y comisiones de aprobación pendiente",
+    "definicion": "Incentivos o pagos que aún no han sido validados o que han sido rechazados por no haber sido emitidos correctamente los documentos o resplados o aquellos que se encuentran en proceso de corrección.",
+    "tags": []
+  },
+  {
+    "id": "gl_025",
+    "termino": "Contraprestaciones y comisiones pagadas",
+    "definicion": "Pagos o incentivos que han sido efectivamente depositados a la Agencia Máster, Promotoría o al Agente/Agencia CNSF entidad correspondiente.",
+    "tags": []
+  },
+  {
+    "id": "gl_026",
+    "termino": "Contraprestaciones y comisiones pendientes",
+    "definicion": "Incentivos o pagos que aún no han sido liquidados o procesados.",
+    "tags": []
+  },
+  {
+    "id": "gl_027",
+    "termino": "Confirmación de pago",
+    "definicion": "Verificación de que un pago ha sido recibido y procesado correctamente.",
+    "tags": []
+  },
+  {
+    "id": "gl_030",
+    "termino": "Contrato",
+    "definicion": "Contrato de prestación de servicios para la recluta de otros niveles de la estructura de distribución y el de intermediación y venta de los productos de Olé",
+    "tags": []
+  },
+  {
+    "id": "gl_031",
+    "termino": "Contrato Activo",
+    "definicion": "Contratos de distribución que le permiten a cada uno de los niveles desarrollar sus propias actividades, acceder a las diferentes plataformas y ganar contraprestaciones/comisiones.",
+    "tags": []
+  },
+  {
+    "id": "gl_032",
+    "termino": "Contrato Cancelado",
+    "definicion": "Los asesores con contrato cancelado no tendrán acceso al sistema ya que sus credenciales son inhabilitadas. Los asesores con contrato cancelado por causa, son los ÚNICOS que no recibirán comisiones.",
+    "tags": []
+  },
+  {
+    "id": "gl_033",
+    "termino": "Contrato Inactivo",
+    "definicion": "Los asesores con contrato inactivo pueden tener acceso al sistema para ver a sus clientes, pólizas colocadas y comisiones...",
+    "tags": []
+  }
+]

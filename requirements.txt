@@ -11,3 +11,4 @@ pydantic
 google-genai
 psycopg2-binary
 pydantic_settings
+locust
