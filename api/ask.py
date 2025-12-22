@@ -56,6 +56,10 @@ def ask(q: Question, request: Request, background_tasks: BackgroundTasks):
         context = "\n\n".join(retrieved_chunks)
         history_text = build_history_text(session_id, country)
 
+        language = 'español de méxico'
+        if country == 'br' :
+            language = 'portugués de Brasil'
+
         prompt = f"""
         Eres **Olé Assistant**, un asistente experto en seguros de vida. 
         Debes mantener coherencia a lo largo de la conversación y responder 
@@ -83,6 +87,7 @@ def ask(q: Question, request: Request, background_tasks: BackgroundTasks):
         - No inventes datos fuera del contexto RAG.
         - Si faltan datos, dilo de manera clara y profesional.
         - Si existen reglas diferentes por cobertura o sección, sepáralas claramente.
+        - La respuesta tiene que estar en idioma {language}
 
         ==================================================
         ❓ PREGUNTA ACTUAL DEL USUARIO

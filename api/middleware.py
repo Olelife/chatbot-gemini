@@ -10,6 +10,7 @@ def setup_middlewares(app):
         "https://portal.dev.ole-sp.com.mx",
         "https://portal.stg.ole-sp.com.mx",
         "https://portal.ole-sp.com.mx",
+        "https://portal.olelife.com.br",
     ]
 
     # CORS
