@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     BUCKET: str = "olelife-lakehouse"
     KNOWLEDGE_FOLDER: str = "gemini-ai/knowledge"
 
+    #Se cambia "gemini-embedding-001" por "text-embedding-005" para mejorar velocidad de respuesta
     EMBED_MODEL: str = "gemini-embedding-001"
     GEN_MODEL: str = "gemini-2.5-pro"
 

@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "pais": "BR",
+  "producto": {
+    "nombre": "Olé Life Individual Brasil",
+    "moneda_unica": "USD",
+    "edades": {
+      "edad_minima_contratacion": 18,
+      "edad_maxima_contratacion": 70,
+      "edad_maxima_cobertura": 75
+    },
+    "suma_asegurada_principal": {
+      "minima": 100000,
+      "maxima": 500000,
+      "incrementos": 10000
+    },
+    "plazos_permitidos": ["5 años"],
+    "frecuencias_pago": ["mensual", "anual"]
+  },
+
+  "companias": {
+    "socio_ole": "Olé actúa como representante de seguros de Excelsior, autorizada a distribuir el producto Olé.",
+    "licencia": "Excelsior",
+    "reasegurador": {
+      "nombre": "Munich Re",
+      "porcentaje_responsabilidad": 90
+    },
+    "fronting": {
+      "nombre": "Excelsior",
+      "porcentaje_responsabilidad": 10
+    },
+    "otros_participantes": [
+      "Nomad Subrepresentante de Seguros (divulgación del producto)"
+    ]
+  },
+
+  "operativa": {
+    "primer_pago": "El cliente tiene 15 días para realizar el primer pago, sino se cancela la solicitud.",
+    "periodo_gracia": "15 días posteriores a la fecha límite de pago.",
+    "periodo_lapsado": "durante 15 días después del pago.",
+    "reinstalacion": "No hay reinstalación."
+  },
+
+  "coberturas_disponibles": {
+    "principales": [
+      "fallecimiento (USD 100,000 hasta USD 500,000)"
+    ],
+    "adicionales": [
+      "muerte o invalidez accidental (disponible en 2026)"
+    ]
+  },
+
+  "distribucion": {
+    "esquema": "Olé es representante de seguros y puede distribuir el seguro; nombra Subrepresentantes (como Nomad) para la divulgación del producto.",
+    "comisiones_incentivos": "Durante el proyecto piloto (3 a 6 meses), Nomad no recibirá incentivos comerciales. Después se definirá el porcentaje."
+  }
+}

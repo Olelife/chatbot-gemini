@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from sklearn.metrics.pairwise import cosine_similarity
 
 from core.config import settings
-from rag.knowledge import build_or_load_knowledge_base, embed_single
+from rag.embeddings import embed_single
+from rag.knowledge import build_or_load_knowledge_base
 from utils.file import list_files_in_folder
 
 router = APIRouter(prefix="/debug", tags=["Debug"])
@@ -23,8 +24,6 @@ def debug_config():
         "knowledge_folder": settings.KNOWLEDGE_FOLDER,
         "embedding_model": settings.EMBED_MODEL,
         "generative_model": settings.GEN_MODEL,
-        "cache_local_path": settings.CACHE_LOCAL_PATH,
-        "cache_gcs_path": settings.CACHE_GCS_PATH,
     }
 
     return config

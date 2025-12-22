@@ -1,155 +1,88 @@
-from core.genai_client import ensure_genai_client
-from rag.cache import load_cache_local, download_cache_from_gcs, save_cache_local, upload_cache_to_gcs
-from utils.file import list_files_in_folder
-from google.cloud import storage
-from typing import Optional, Tuple, List
-import os
 import logging
-from core.config import settings
+from typing import List, Tuple
+import hashlib
 import numpy as np
-from google.genai import types
+
+from core.config import settings
+from integrations.bigquery_zendesk import fetch_zendesk_articles_br
+from rag.cache import save_cache_local, load_cache_local, upload_cache_to_gcs, download_cache_from_gcs
+from rag.loader import load_file_as_units, list_files_in_folder
+from rag.embeddings import embed_texts
+from rag.zendesk_chunks import convert_zendesk_articles_to_chunks
 
 logger = logging.getLogger(__name__)
 
-def load_file_as_units(bucket: str, path: str) -> List[str]:
+
+def build_or_load_knowledge_base(country: str) -> Tuple[List[str], np.ndarray, dict]:
     """
-    Carga un archivo JSON y lo convierte en chunks semánticos completos.
-    Las coberturas se agrupan en un solo chunk.
-    Diccionarios se mantienen como una unidad completa.
-    Listas generan un chunk por elemento.
-    No se divide por claves individuales.
+    Construye o carga la KB específica de un país.
+    country: "mx", "br", etc.
+    Incluye datos externos (Zendesk) solo cuando aplica.
     """
 
-    client = storage.Client()
-    bucket_obj = client.bucket(bucket)
-    blob = bucket_obj.blob(path)
+    # Cache por país
+    local_cache_path = f"/tmp/kb_cache_{country}.pkl"
+    gcs_cache_path = f"gemini-ai/cache/kb_cache_{country}.pkl"
 
-    if not blob.exists():
-        return []
+    # 1. Intentar cache local
+    chunks, embeddings, metadata = load_cache_local(local_cache_path)
+    if chunks is not None:
+        logger.info(f"Loaded KB for {country} from local cache")
+        return chunks, embeddings, metadata
 
-    raw = blob.download_as_bytes()
+    # 2. Intentar cache GCS
+    if download_cache_from_gcs(settings.BUCKET, gcs_cache_path, local_cache_path):
+        chunks, embeddings, metadata = load_cache_local(local_cache_path)
+        if chunks is not None:
+            logger.info(f"Loaded KB for {country} from GCS cache")
+            return chunks, embeddings, metadata
 
-    # Archivos que no son JSON → chunk único
-    if not path.endswith(".json"):
-        text = raw.decode("utf-8", errors="ignore")
-        return [text] if text.strip() else []
+    # 3. Construir KB desde cero
+    folder = f"{settings.KNOWLEDGE_FOLDER}/{country}"
+    files = list_files_in_folder(settings.BUCKET, folder)
 
-    import json
-    try:
-        data = json.loads(raw.decode("utf-8"))
-    except:
-        return []
-
-    units = []
-
-    # -----------------------------
-    # CASO 1: JSON es LISTA
-    # -----------------------------
-    if isinstance(data, list):
-        for entry in data:
-            nombre = (
-                entry.get("nombre")
-                or entry.get("titulo")
-                or entry.get("id")
-                or "ITEM"
-            )
-            block = (
-                f"## ITEM: {nombre}\n\n"
-                f"{json.dumps(entry, ensure_ascii=False, indent=2)}"
-            )
-            units.append(block)
-
-        return units
-
-    # -----------------------------
-    # CASO 2: JSON es DICCIONARIO
-    # -----------------------------
-    if isinstance(data, dict):
-
-        # Detectar archivos de COBERTURAS (muy importante)
-        if "coberturas" in path or "cobertura" in path:
-            nombre = (
-                data.get("nombre")
-                or data.get("id")
-                or os.path.basename(path).replace(".json", "")
-            )
-
-            block = (
-                f"## COBERTURA: {nombre}\n\n"
-                f"{json.dumps(data, ensure_ascii=False, indent=2)}"
-            )
-            return [block]
-
-        # Archivos tipo secciones (faq, operativa, lists, etc.)
-        nombre = os.path.basename(path).replace(".json", "").upper()
-
-        block = (
-            f"## SECCIÓN: {nombre}\n\n"
-            f"{json.dumps(data, ensure_ascii=False, indent=2)}"
-        )
-        return [block]
-
-    # Último recurso: chunk único
-    return [json.dumps(data)]
-
-def build_knowledge_units_from_folder(bucket: str, root_folder: str) -> List[str]:
-    """
-    Construye chunks semánticos desde múltiples archivos JSON/texto
-    dentro del folder knowledge/.
-    """
-    files = list_files_in_folder(bucket, root_folder)
-    all_units = []
-
+    json_units = []
     for f in files:
-        if "prompts" in f:
-            continue
+        json_units.extend(load_file_as_units(settings.BUCKET, f))
 
-        units = load_file_as_units(bucket, f)
-        all_units.extend(units)
+    logger.info(f"[KB] JSON chunks loaded for {country}: {len(json_units)}")
 
-    logger.info(f"Knowledge units created: {len(all_units)}")
-    return all_units
+    json_embeddings = embed_texts(json_units)
 
-def embed_texts(texts: List[str]) -> np.ndarray:
-    client = ensure_genai_client()
+    zendesk_units = []
+    zendesk_embeddings = None
 
-    response = client.models.embed_content(
-        model=settings.EMBED_MODEL,
-        contents=texts,
-        config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT"),
-    )
+    if country == "br":
+        logger.info("[KB] Fetching Zendesk BR articles from BigQuery...")
 
-    vectors = [np.array(e.values, dtype="float32") for e in response.embeddings]
-    return np.vstack(vectors)
+        articles = fetch_zendesk_articles_br()
+        zendesk_units = convert_zendesk_articles_to_chunks(articles)
 
-def embed_single(text: str) -> np.ndarray:
-    return embed_texts([text])[0]
+        logger.info(f"[KB] Zendesk BR chunks: {len(zendesk_units)}")
 
-def build_or_load_knowledge_base():
-    # 1) Intentar cache local
-    local_chunks, local_emb, metadata = load_cache_local()
-    if local_chunks is not None:
-        logger.info("Loaded KB from LOCAL CACHE")
-        return local_chunks, local_emb, metadata
+        if len(zendesk_units) > 0:
+            zendesk_embeddings = embed_texts(zendesk_units)
 
-    # 2) Intentar cache GCS
-    if download_cache_from_gcs(settings.BUCKET, settings.CACHE_GCS_PATH):
-        c, e, m = load_cache_local()
-        if c is not None:
-            logger.info("Loaded KB from GCS CACHE")
-            return c, e, m
+    if zendesk_units:
+        all_chunks = json_units + zendesk_units
+        all_embeddings = np.vstack([json_embeddings, zendesk_embeddings])
+    else:
+        all_chunks = json_units
+        all_embeddings = json_embeddings
 
-    # 3) Construir desde knowledge/
-    logger.info("Building KB from raw JSON knowledge folder…")
+    metadata = {
+        "json_chunks": len(json_units),
+        "zendesk_chunks": len(zendesk_units),
+        "total_chunks": len(all_chunks),
+        "embedding_dim": all_embeddings.shape[1],
+        "hash": hashlib.sha256("\n".join(all_chunks).encode()).hexdigest(),
+    }
 
-    kb_chunks = build_knowledge_units_from_folder(settings.BUCKET, settings.KNOWLEDGE_FOLDER)
-    logger.info(f"KB semantic chunks: {len(kb_chunks)}")
-    kb_embeddings = embed_texts(kb_chunks)
+    # Guardar cache local
+    save_cache_local(all_chunks, all_embeddings, local_cache_path)
+    # Subir cache a GCS
+    upload_cache_to_gcs(settings.BUCKET, gcs_cache_path, local_cache_path)
 
-    save_cache_local(kb_chunks, kb_embeddings)
-    upload_cache_to_gcs(settings.BUCKET, settings.CACHE_GCS_PATH)
+    logger.info(f"[KB] Built KB for {country} → total chunks: {len(all_chunks)}")
 
-    # cargar metadata recien guardada
-    _, _, metadata = load_cache_local()
-
-    return kb_chunks, kb_embeddings, metadata
+    return all_chunks, all_embeddings, metadata

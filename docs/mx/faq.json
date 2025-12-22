@@ -1,0 +1,164 @@
+[
+  {
+    "id": "faq_001",
+    "pregunta": "Nombre del producto",
+    "respuesta": "El nombre del producto es Olé Life Individual México.",
+    "tags": ["producto"]
+  },
+  {
+    "id": "faq_002",
+    "pregunta": "País",
+    "respuesta": "Este producto aplica para México.",
+    "tags": ["pais", "producto"]
+  },
+  {
+    "id": "faq_003",
+    "pregunta": "Tiempo de respuesta del equipo de Underwriting cuando llega una solicitud",
+    "respuesta": "No se tiene un tiempo de respuesta definido.",
+    "tags": ["underwriting", "operativa"]
+  },
+  {
+    "id": "faq_004",
+    "pregunta": "Tiempo que tiene el cliente para realizar el primer pago",
+    "respuesta": "El cliente tiene 30 días para realizar el primer pago luego de que se aprueba su póliza; de lo contrario la póliza se cancelará, cambiando de estado a 'CANCELADA - NO PAGADA'.",
+    "tags": ["operativa", "pagos", "primer_pago"]
+  },
+  {
+    "id": "faq_005",
+    "pregunta": "Periodo de gracia",
+    "respuesta": "El periodo de gracia para México es de 30 días.",
+    "tags": ["operativa", "periodo_gracia"]
+  },
+  {
+    "id": "faq_006",
+    "pregunta": "Periodo de lapsado",
+    "respuesta": "El periodo de lapso de una póliza es de 12 meses adicionales al periodo de gracia.",
+    "tags": ["operativa", "lapsado"]
+  },
+  {
+    "id": "faq_007",
+    "pregunta": "Reinstalación o reactivación de la póliza",
+    "respuesta": "Después de 30 días sin pago, la póliza se lapsa y se tienen 12 meses adicionales para reactivarla. Posterior a este tiempo, la póliza cambiará a estado cancelado.",
+    "tags": ["operativa", "reinstalacion"]
+  },
+  {
+    "id": "faq_008",
+    "pregunta": "¿Quién es socio de Olé en México?",
+    "respuesta": "Olé trabaja en colaboración con Seguros Patrimonial mediante un esquema de Fronting Fee y la licencia de Seguros Patrimonial.",
+    "tags": ["estructura", "companias"]
+  },
+  {
+    "id": "faq_009",
+    "pregunta": "¿Qué licencia tenemos?",
+    "respuesta": "Se opera con la licencia de Seguros Patrimonial.",
+    "tags": ["estructura", "companias"]
+  },
+  {
+    "id": "faq_010",
+    "pregunta": "¿Qué empresa nos brinda reaseguro?",
+    "respuesta": "SwissRe brinda el reaseguro con un 80% de responsabilidad.",
+    "tags": ["reaseguro", "companias"]
+  },
+  {
+    "id": "faq_011",
+    "pregunta": "¿Qué coberturas principales tenemos?",
+    "respuesta": "Las coberturas principales son: Fallecimiento y Anticipo por enfermedad terminal.",
+    "tags": ["coberturas", "principales"]
+  },
+  {
+    "id": "faq_012",
+    "pregunta": "¿Qué coberturas adicionales tenemos?",
+    "respuesta": "Las coberturas adicionales son: Muerte o Invalidez Accidental, Enfermedades Graves y Protección contra el cáncer.",
+    "tags": ["coberturas", "adicionales"]
+  },
+  {
+    "id": "faq_013",
+    "pregunta": "¿Por cuánto me cubre la cobertura de Pago anticipado por enfermedad terminal?",
+    "respuesta": "Cubre el 50% de la suma asegurada de la cobertura principal (fallecimiento).",
+    "tags": ["coberturas", "enfermedad_terminal"]
+  },
+  {
+    "id": "faq_014",
+    "pregunta": "¿Si contrato Enfermedades Graves puedo contratar también Protección contra Cáncer?",
+    "respuesta": "No. La cobertura de Enfermedades Graves ya incluye Cáncer; solo puedes contratar una de ellas.",
+    "tags": ["coberturas", "cancer", "enfermedades_graves", "restricciones"]
+  },
+  {
+    "id": "faq_015",
+    "pregunta": "¿Qué términos puedo contratar?",
+    "respuesta": "Los términos disponibles son 10, 15, 20 y 30 años.",
+    "tags": ["plazos", "producto"]
+  },
+  {
+    "id": "faq_016",
+    "pregunta": "¿Hasta qué edad puedo contratar un seguro?",
+    "respuesta": "Puedes contratar desde los 18 hasta los 65 años. La edad máxima de cobertura es 75 años, por lo que una persona de 65 años solo puede contratar un plazo de 10 años.",
+    "tags": ["edad", "elegibilidad"]
+  },
+  {
+    "id": "faq_017",
+    "pregunta": "¿Puedo contratar en una moneda distinta a dólares?",
+    "respuesta": "No. Solo se puede contratar en dólares americanos (USD).",
+    "tags": ["moneda", "producto"]
+  },
+  {
+    "id": "faq_018",
+    "pregunta": "¿Cuáles son los montos mínimos y máximos de suma asegurada para la cobertura principal?",
+    "respuesta": "Los montos van desde USD $100,000 hasta USD $1,000,000.",
+    "tags": ["suma_asegurada", "coberturas"]
+  },
+  {
+    "id": "faq_019",
+    "pregunta": "Montos de suma asegurada para Enfermedades Graves o Protección contra Cáncer",
+    "respuesta": "Los montos disponibles son: USD $20,000, USD $50,000 y USD $100,000.",
+    "tags": ["suma_asegurada", "coberturas_adicionales"]
+  },
+  {
+    "id": "faq_020",
+    "pregunta": "¿Las coberturas de Enfermedades Graves o Protección contra Cáncer incluyen a mi familia?",
+    "respuesta": "No. Estas coberturas solo aplican al asegurado.",
+    "tags": ["coberturas", "familia"]
+  },
+  {
+    "id": "faq_021",
+    "pregunta": "¿Qué frecuencias de pago puedo contratar?",
+    "respuesta": "Las frecuencias disponibles son: Mensual, Trimestral, Semestral y Anual.",
+    "tags": ["frecuencias", "pagos"]
+  },
+  {
+    "id": "faq_022",
+    "pregunta": "¿Puedo tener más de una cotización activa?",
+    "respuesta": "Sí, puedes tener más de una cotización activa.",
+    "tags": ["cotizaciones", "operativa"]
+  },
+  {
+    "id": "faq_023",
+    "pregunta": "Reglas de la suma asegurada para vender el producto",
+    "respuesta": "1) El monto máximo para la cobertura básica es USD $1,000,000.\n2) La suma combinada entre cobertura básica y muerte accidental/desmembramiento no puede exceder USD $1,000,000.\n3) La cobertura de enfermedades graves o cáncer NO se contabiliza en el máximo de USD $1,000,000.\n4) Ninguna cobertura adicional puede tener suma asegurada mayor que la cobertura básica.",
+    "tags": ["suma_asegurada", "restricciones", "coberturas"]
+  },
+  {
+    "id": "faq_024",
+    "pregunta": "Jerarquías",
+    "respuesta": "Existen tres niveles: Nivel 1: Agencia Master, Nivel 2: Promotoría, Nivel 3: Agente/Agencia CNSF.",
+    "tags": ["estructura", "jerarquias"]
+  },
+  {
+    "id": "faq_025",
+    "pregunta": "Esquema de comisiones",
+    "respuesta": "Tres niveles de comisiones: Agencia Master, Promotoría y Agente/Agencia CNSF.",
+    "tags": ["estructura", "comisiones"]
+  },
+  {
+    "id": "faq_026",
+    "pregunta": "¿El producto cuenta con devolución de dinero si no ocurre un siniestro?",
+    "respuesta": "No. El producto no cuenta con devolución de dinero ni montos de rescate.",
+    "tags": ["rescate", "beneficios"]
+  },
+  {
+    "id": "faq_027",
+    "pregunta": "¿Si dejo de pagar mi cuota de seguro, me devolverán el dinero que aporté?",
+    "respuesta": "No. El producto no cuenta con devolución de dinero ni montos de rescate.",
+    "tags": ["pagos", "rescate"]
+  }
+]

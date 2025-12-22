@@ -3,12 +3,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from api.middleware import setup_middlewares
-from core.genai_client import ensure_genai_client
 
 from api.ask import router as ask_router
 from api.debug import router as debug_router
 from api.health import router as health_router
-from api.reload import router as reload_router
+from api.admin import router as admin_router
+from core.genai_client import init_genai_client
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("API Startup")
-    ensure_genai_client()
+    init_genai_client()
     yield
     logger.info("API Shutdown")
 
@@ -31,5 +31,5 @@ setup_middlewares(app)
 
 app.include_router(ask_router)
 app.include_router(debug_router)
-app.include_router(reload_router)
 app.include_router(health_router)
+app.include_router(admin_router)
