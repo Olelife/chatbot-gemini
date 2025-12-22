@@ -21,11 +21,22 @@ def setup_middlewares(app):
         allow_headers=["*"],
     )
 
+    protected_paths = [
+        "/ask",
+        "/ask/",
+    ]
+
     # Header "x-username" obligatorio
     @app.middleware("http")
     async def require_username(request, call_next):
+        path = request.url.path
+
+        if not any(path.startswith(p) for p in protected_paths):
+            return await call_next(request)
+
         if request.method == "OPTIONS":
             return await call_next(request)
+
         username = request.headers.get("x-username")
         if not username:
             return JSONResponse(
