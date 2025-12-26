@@ -9,6 +9,7 @@ from api.debug import router as debug_router
 from api.health import router as health_router
 from api.admin import router as admin_router
 from core.genai_client import init_genai_client
+from api.slack_events import router as slack_events_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,3 +34,4 @@ app.include_router(ask_router)
 app.include_router(debug_router)
 app.include_router(health_router)
 app.include_router(admin_router)
+app.include_router(slack_events_router)
