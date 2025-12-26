@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     API_CHAT_GEMINI_DB_PASS: str
     API_CHAT_GEMINI_DB_NAME: str = "ole-db-ia"
 
+    SLACK_BOT_TOKEN: str
+    SLACK_SIGNING_SECRET: str
+
     class Config:
         env_file = ".env"
 

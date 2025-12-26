@@ -1,7 +1,10 @@
 import logging
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
+from fastapi.responses import PlainTextResponse
+from slack_sdk import WebClient
 from sklearn.metrics.pairwise import cosine_similarity
 
+from core.config import settings
 from models.question import Question
 from rag.embeddings import embed_single
 from rag.generator import generate_answer
@@ -12,6 +15,7 @@ from services.logging_service import save_log_async
 import numpy as np
 from utils.timer import Timer
 
+slack_client = WebClient(token=settings.SLACK_BOT_TOKEN)
 router = APIRouter(prefix="/ask", tags=["Ask"])
 logger = logging.getLogger(__name__)
 
@@ -149,6 +153,39 @@ def ask(q: Question, request: Request, background_tasks: BackgroundTasks):
         background_tasks,
     )
 
+async def background_slack_task(
+    question: str,
+    session_id: str,
+    country: str,
+    username: str,
+    request: Request,
+    channel_id: str
+):
+    try:
+        # Procesar la IA
+        result = process_question(
+            question,
+            session_id,
+            country,
+            username,
+            request,
+            BackgroundTasks()  # dummy
+        )
+
+        answer = result["answer"]
+
+        # Enviar mensaje final a Slack
+        slack_client.chat_postMessage(
+            channel=channel_id,
+            text=f"<@{username}> {answer}"
+        )
+
+    except Exception as e:
+        logger.error(f"Slack processing error: {e}")
+        slack_client.chat_postMessage(
+            channel=channel_id,
+            text="⚠️ Tive um problema processando sua mensagem. Tente novamente!"
+        )
 
 # ============================================================
 # SLACK API
@@ -158,21 +195,25 @@ async def ask_slack(request: Request, background_tasks: BackgroundTasks):
     form = await request.form()
 
     user_id = form.get("user_id")
-    channel_id = form.get("channel_id")
     question = form.get("text")
-    # username = form.get("user_id", "slack-user")
-    # session_id = form.get("channel_id", "slack-session")
     country = form.get("country", "br").lower()
-
+    channel_id = form.get("channel_id")
     session_id = f"slack-{user_id}"
 
-    result = process_question(
+    logger.info(
+        msg=f"Asking question {question} for country {country} with user_id {user_id} and session_id {session_id}"
+    )
+
+    background_tasks.add_task(
+        background_slack_task,
         question,
         session_id,
         country,
         user_id,
         request,
-        background_tasks,
+        channel_id
     )
+
+    return PlainTextResponse("⏳ Estou analisando sua pergunta...")
 
     return {"text": result["answer"]}
