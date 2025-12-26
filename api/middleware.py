@@ -39,6 +39,12 @@ def setup_middlewares(app):
             return await call_next(request)
 
         username = request.headers.get("x-username")
+
+        slack_paths = ["/slack/command", "/ask/slack"]
+
+        if request.url.path.lower() in slack_paths:
+            return await call_next(request)
+
         if not username:
             return JSONResponse(
                 status_code=400,
