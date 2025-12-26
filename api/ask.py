@@ -107,19 +107,34 @@ solo con información contenida en el contexto RAG.
         for i in top_idx
     ]
 
-    background_tasks.add_task(
-        save_log_async,
-        question,
-        answer,
-        username,
-        retrieved_chunks,
-        scores_list,
-        {
-            "country": country,
-            "ip": request.client.host,
-            "user-agent": request.headers.get("User-Agent"),
-        },
-    )
+    if background_tasks is not None:
+        background_tasks.add_task(
+            save_log_async,
+            question,
+            answer,
+            username,
+            retrieved_chunks,
+            scores_list,
+            {
+                "country": country,
+                "ip": request.client.host if request else None,
+                "user-agent": request.headers.get("User-Agent") if request else None,
+            },
+        )
+    else:
+        # Fallback: log de manera síncrona en caso de Slack/evento
+        save_log_async(
+            question,
+            answer,
+            username,
+            retrieved_chunks,
+            scores_list,
+            {
+                "country": country,
+                "ip": request.client.host if request else None,
+                "user-agent": request.headers.get("User-Agent") if request else None,
+            },
+        )
     timer.end("db_log")
 
     # Guardar en memoria conversacional
