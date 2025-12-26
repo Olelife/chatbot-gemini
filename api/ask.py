@@ -154,18 +154,23 @@ def ask(q: Question, request: Request, background_tasks: BackgroundTasks):
 # SLACK API
 # ============================================================
 @router.post("/slack")
-async def ask_slack(payload: dict, request: Request, background_tasks: BackgroundTasks):
+async def ask_slack(request: Request, background_tasks: BackgroundTasks):
+    form = await request.form()
 
-    question = payload.get("text")
-    username = payload.get("user_id", "slack-user")
-    session_id = payload.get("channel_id", "slack-session")
-    country = payload.get("country", "mx").lower()
+    user_id = form.get("user_id")
+    channel_id = form.get("channel_id")
+    question = form.get("text")
+    # username = form.get("user_id", "slack-user")
+    # session_id = form.get("channel_id", "slack-session")
+    country = form.get("country", "br").lower()
+
+    session_id = f"slack-{user_id}"
 
     result = process_question(
         question,
         session_id,
         country,
-        username,
+        user_id,
         request,
         background_tasks,
     )
