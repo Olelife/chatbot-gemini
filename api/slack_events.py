@@ -6,79 +6,87 @@ from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from slack_sdk import WebClient
 from core.config import settings
 from api.ask import process_question
+from services.slack_service import send_message_to_slack, slack_typing
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/slack", tags=["Slack"])
 slack_client = WebClient(token=settings.SLACK_BOT_TOKEN)
 
+PROCESSED_EVENTS = set()
+SLACK_SIGNING_SECRET = settings.SLACK_SIGNING_SECRET
+
+
 def verify_slack_signature(request: Request, body: str):
     timestamp = request.headers.get("X-Slack-Request-Timestamp")
-    signature = request.headers.get("X-Slack-Signature")
+    slack_signature = request.headers.get("X-Slack-Signature")
 
     if abs(time.time() - int(timestamp)) > 300:
-        raise HTTPException(status_code=403, detail="Timestamp expired")
+        return False
 
     base = f"v0:{timestamp}:{body}".encode()
-    secret = settings.SLACK_SIGNING_SECRET.encode()
+    expected = "v0=" + hmac.new(
+        SLACK_SIGNING_SECRET.encode(), base, hashlib.sha256
+    ).hexdigest()
 
-    computed = "v0=" + hmac.new(secret, base, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, slack_signature)
 
-    if not hmac.compare_digest(computed, signature):
-        raise HTTPException(status_code=403, detail="Invalid signature")
 
 @router.post("/events")
 async def slack_events(request: Request, background_tasks: BackgroundTasks):
-    raw_body = await request.body()
-    body = raw_body.decode()
+    body_raw = await request.body()
+    body_str = body_raw.decode("utf-8")
+    data = await request.json()
 
-    verify_slack_signature(request, body)
-    payload = await request.json()
+    # Slack URL Verification
+    if "challenge" in data:
+        return {"challenge": data["challenge"]}
 
-    # Slack URL Verification challenge
-    if payload.get("type") == "url_verification":
-        return {"challenge": payload["challenge"]}
+    if not verify_slack_signature(request, body_str):
+        return {"error": "invalid_signature"}
 
-    event = payload.get("event", {})
-    event_type = event.get("type")
+    event_id = data.get("event_id")
+    event = data.get("event", {})
 
-    # Ignorar eventos no relevantes (typing, bot messages, etc.)
-    if event.get("bot_id"):
+    # 🔥 evita duplicados
+    if event_id in PROCESSED_EVENTS:
+        logger.info(f"Ignored duplicate event: {event_id}")
         return {"ok": True}
+    PROCESSED_EVENTS.add(event_id)
 
-    user_id = event.get("user")
-    channel_id = event.get("channel")
-
-    # Detectar fuente del mensaje
-    if event_type == "app_mention":
-        text = event.get("text", "").replace(f"<@{settings.SLACK_BOT_USER_ID}>", "").strip()
-        logger.info(f"App Mention from {user_id} -> {text}")
-    elif event_type == "message" and event.get("channel_type") == "im":
+    if event.get("type") == "app_mention":
+        user_id = event.get("user")
+        channel_id = event.get("channel")
         text = event.get("text")
-        logger.info(f"DM from {user_id} -> {text}")
-    else:
+        thread_ts = event.get("ts")  # 🧵 para responder en thread
+
+        logger.info(f"@Mention by {user_id}: {text}")
+
+        # ⏳ Inmediato → typing en hilo
+        slack_typing(channel_id, thread_ts)
+
+        # 👇 Lanzar procesamiento RAG/Gemini en background
+        background_tasks.add_task(
+            handle_slack_question,
+            text,
+            user_id,
+            channel_id,
+            thread_ts
+        )
+
         return {"ok": True}
-
-    country = "br"  # Por defecto para Slack
-    session_id = f"slack-{user_id}"
-
-    logger.info(
-        msg=f"Question {text} with event type {event_type} amd channel {channel_id}"
-    )
-
-    result = process_question(
-        text,
-        session_id,
-        country,
-        user_id,
-        request,
-        background_tasks,
-    )
-
-    # Enviar respuesta a Slack
-    slack_client.chat_postMessage(
-        channel=channel_id,
-        text=result["answer"]
-    )
 
     return {"ok": True}
+
+
+async def handle_slack_question(text, user_id, channel_id, thread_ts):
+    result = process_question(
+        question=text,
+        session_id=f"slack-{user_id}",
+        country="br",
+        username=user_id,
+        request=None,
+        background_tasks=None,
+    )
+
+    send_message_to_slack(channel_id, result["answer"], thread_ts)
