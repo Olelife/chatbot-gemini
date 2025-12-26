@@ -13,3 +13,4 @@ psycopg2-binary
 pydantic_settings
 locust
 python-multipart>=0.0.6
+slack_sdk>=3.34.0
