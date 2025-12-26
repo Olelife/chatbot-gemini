@@ -21,6 +21,7 @@ class Settings(BaseSettings):
 
     SLACK_BOT_TOKEN: str
     SLACK_SIGNING_SECRET: str
+    SLACK_BOT_USER_ID: str
 
     class Config:
         env_file = ".env"

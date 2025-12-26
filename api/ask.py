@@ -201,7 +201,7 @@ async def ask_slack(request: Request, background_tasks: BackgroundTasks):
     session_id = f"slack-{user_id}"
 
     logger.info(
-        msg=f"Asking question {question} for country {country} with user_id {user_id} and session_id {session_id}"
+        msg=f"Asking question {question} for country {country} with user_id {user_id} and session_id {session_id} in channel {channel_id}"
     )
 
     background_tasks.add_task(
