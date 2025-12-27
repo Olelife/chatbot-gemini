@@ -24,14 +24,14 @@ def send_message_to_slack(channel: str, text: str):
 def slack_typing(channel: str, thread_ts: str | None = None):
     slack_client.chat_postMessage(
         channel=channel,
-        text="typing...",
+        text="⏳ Estou analisando sua pergunta...",
         thread_ts=thread_ts
     )
 
 
-def send_message_to_slack(channel, text, thread_ts=None):
+def send_message_to_slack(channel, blocks, thread_ts=None):
     slack_client.chat_postMessage(
-        channel=channel,
-        text=text,
+        blocks=blocks,
+        text="Nueva respuesta de Olé Assistant",
         thread_ts=thread_ts
     )
