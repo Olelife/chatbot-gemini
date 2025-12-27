@@ -40,7 +40,7 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
 
     # Slack URL Verification
     if "challenge" in data:
-        return {"challenge": data["challenge"]}
+        return data
 
     if not verify_slack_signature(request, body_str):
         return {"error": "invalid_signature"}
@@ -54,39 +54,38 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
         return {"ok": True}
     PROCESSED_EVENTS.add(event_id)
 
-    if event.get("type") == "app_mention":
-        user_id = event.get("user")
-        channel_id = event.get("channel")
-        text = event.get("text")
-        thread_ts = event.get("ts")  # 🧵 para responder en thread
+    event_type = event.get("type")
+    user_id = event.get("user")
+    channel = event.get("channel")
+    text = event.get("text")
+    thread_ts = event.get("thread_ts", event.get("ts"))  # HILO 👌
 
-        logger.info(f"@Mention by {user_id}: {text}")
+    if user_id == data["authorizations"][0]["user_id"]:
+        return {"ok": True}  # evita responderte a ti mismo
 
-        # ⏳ Inmediato → typing en hilo
-        slack_typing(channel_id, thread_ts)
+    if event_type in ["app_mention", "message"]:
+        slack_typing(channel, thread_ts)  # muestra escribiendo…
 
-        # 👇 Lanzar procesamiento RAG/Gemini en background
         background_tasks.add_task(
             handle_slack_question,
             text,
             user_id,
-            channel_id,
-            thread_ts
+            channel,
+            thread_ts,  # 👈 hilo para continuidad
+            request
         )
-
-        return {"ok": True}
 
     return {"ok": True}
 
 
-async def handle_slack_question(text, user_id, channel_id, thread_ts):
+async def handle_slack_question(text, user_id, channel_id, thread_ts, request):
     result = process_question(
         question=text,
-        session_id=f"slack-{user_id}",
+        session_id=f"slack-{user_id}-{thread_ts}",  # memoria por hilo
         country="br",
         username=user_id,
-        request=None,
-        background_tasks=None,
+        request=request,
+        background_tasks=None
     )
 
     send_message_to_slack(channel_id, result["answer"], thread_ts)
