@@ -77,6 +77,17 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
 
     return {"ok": True}
 
+def format_answer_to_blocks(answer: str, user: str):
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"Hey <@{user}>! 👋\n\n{answer}"
+            }
+        },
+        {"type": "divider"}
+    ]
 
 async def handle_slack_question(text, user_id, channel_id, thread_ts, request):
     result = process_question(
@@ -88,4 +99,5 @@ async def handle_slack_question(text, user_id, channel_id, thread_ts, request):
         background_tasks=None
     )
 
-    send_message_to_slack(channel_id, result["answer"], thread_ts)
+    blocks = format_answer_to_blocks(result["answer"], user_id)
+    send_message_to_slack(channel_id, blocks, thread_ts)
