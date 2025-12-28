@@ -7,6 +7,7 @@ from slack_sdk import WebClient
 from core.config import settings
 from api.ask import process_question
 from services.slack_service import send_message_to_slack, slack_typing
+from utils.markdown import sanitize_answer
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +84,7 @@ def format_answer_to_blocks(answer: str, user: str):
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"Hey <@{user}>! 👋\n\n{answer}"
+                "text": f"Hey <@{user}>! 👋\n\n{sanitize_answer(answer)}"
             }
         },
         {"type": "divider"}
