@@ -1,4 +1,5 @@
 import logging
+import random
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from fastapi.responses import PlainTextResponse
 from slack_sdk import WebClient
@@ -23,6 +24,28 @@ kb_chunks = {}
 kb_embeddings = {}
 kb_metadata = {}
 
+def should_introduce(history_text: str, question: str) -> bool:
+    question_lower = question.lower().strip()
+    is_first_message = not history_text.strip()
+
+    is_question = "?" in question_lower
+    word_count = len(question_lower.split())
+
+    greetings = ["hola", "oi", "olá", "ola", "buenas", "bom dia", "boa tarde"]
+    only_greeting = word_count <= 3 and any(g in question_lower for g in greetings)
+
+    ask_identity = any(term in question_lower for term in [
+        "quién eres", "quien eres", "como te llamas",
+        "qual é o seu nome", "quem é você", "quem é voce"
+    ])
+
+    if is_first_message:
+        return True
+    if ask_identity:
+        return True
+    if only_greeting and not is_question:
+        return True
+    return False
 
 def process_question(
     question: str,
@@ -59,31 +82,47 @@ def process_question(
     timer.start("prompt_build")
     context = "\n\n".join(retrieved_chunks)
     history_text = build_history_text(session_id, country)
+    question_lower = question.lower().strip()
 
     language = "español de México" if country == "mx" else "portugués de Brasil"
 
+    introductions = {
+        "mx": [
+            "¡Hola! Soy **Olé Assistant**, tu especialista en seguros de vida.",
+            "¿Qué tal? Estoy aquí para ayudarte con todo lo relacionado a seguros Olé.",
+            "Encantado de apoyarte. Soy Olé Assistant 😄",
+        ],
+        "br": [
+            "Olá! Sou **Olé Assistant**, seu especialista em seguros de vida.",
+            "Oi! Estou aqui para te ajudar com tudo da Olé 😄",
+            "Prazer em te ajudar, sou Olé Assistant!",
+        ]
+    }
+
+    intro = ""
+    if should_introduce(history_text, question):
+        intro = random.choice(introductions[country]) + "\n\n"
+
     prompt = f"""
-Eres **Olé Assistant**, un asistente experto en seguros de vida. 
-Debes mantener coherencia a lo largo de la conversación y responder 
-solo con información contenida en el contexto RAG.
+    {intro} 
+    ==================================================
+    🧠 MEMORIA DE LA CONVERSACIÓN
+    ==================================================
+    {history_text}
 
-==================================================
-🧠 MEMORIA DE LA CONVERSACIÓN
-==================================================
-{history_text}
+    ==================================================
+    📘 CONTEXTO OFICIAL (RAG)
+    ==================================================
+    {context}
 
-==================================================
-📘 CONTEXTO OFICIAL (RAG)
-==================================================
-{context}
-
-==================================================
-🎯 INSTRUCCIONES
-==================================================
-- Mantén coherencia, sin repetirte.
-- Responde en idioma: {language}
-- Si no hay contexto, dilo.
-- No inventes información.
+    ==================================================
+    🎯 INSTRUCCIONES
+    ==================================================
+    - Responde en idioma: **{language}**
+    - Si faltan datos en el contexto, dilo claramente.
+    - Mantén coherencia sin repetir información innecesaria.
+    - Núcleo de la respuesta basada en el contexto anterior.
+    - No inventes información.
 
 ==================================================
 ❓ PREGUNTA DEL USUARIO
@@ -230,5 +269,3 @@ async def ask_slack(request: Request, background_tasks: BackgroundTasks):
     )
 
     return PlainTextResponse("⏳ Estou analisando sua pergunta...")
-
-    return {"text": result["answer"]}
