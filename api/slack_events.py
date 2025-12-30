@@ -8,8 +8,10 @@ from core.config import settings
 from api.ask import process_question
 from services.slack_service import send_message_to_slack, slack_typing
 from utils.markdown import sanitize_answer
+from utils.logger import log_info, log_error, generate_trace_id
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
+trace_id = generate_trace_id()
 
 router = APIRouter(prefix="/slack", tags=["Slack"])
 slack_client = WebClient(token=settings.SLACK_BOT_TOKEN)
@@ -48,35 +50,44 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
 
     event_id = data.get("event_id")
     event = data.get("event", {})
-
-    # 🔥 evita duplicados
-    if event_id in PROCESSED_EVENTS:
-        logger.info(f"Ignored duplicate event: {event_id}")
-        return {"ok": True}
-    PROCESSED_EVENTS.add(event_id)
-
     event_type = event.get("type")
     user_id = event.get("user")
     channel = event.get("channel")
     text = event.get("text")
     thread_ts = event.get("thread_ts", event.get("ts"))  # HILO 👌
 
+    # 🔥 evita duplicados
+    if event_id in PROCESSED_EVENTS:
+        log_info(
+            f"SLACK PROCESSED EVENT",
+            trace_id=trace_id,
+            event_type=event_type,
+            user_id=user_id,
+            channel=channel,
+            thread_ts=thread_ts,
+            text=f"SLACK Ignored duplicate event: {event_id}",
+        )
+        return {"ok": True}
+    PROCESSED_EVENTS.add(event_id)
+
     if user_id == data["authorizations"][0]["user_id"]:
         return {"ok": True}  # evita responderte a ti mismo
 
     if event_type in ["app_mention", "message"]:
-        #slack_typing(channel, thread_ts)  # muestra escribiendo…
-        logger.info(f"[SLACK] Mention: {text}")
+        log_info(
+            f"SLACK MENTION EVENT",
+            trace_id=trace_id,
+            event_type=event_type,
+            user_id=user_id,
+            channel=channel,
+            thread_ts=thread_ts,
+            text=text,
+        )
 
         question_intent = is_real_question(text)
 
         if question_intent:
-            slack_typing(channel, thread_ts=thread_ts)
-            send_message_to_slack(
-                channel,
-                "⏳ Estou analisando sua pergunta...",
-                thread_ts=thread_ts
-            )
+            slack_typing(channel, thread_ts)
             background_tasks.add_task(
                 handle_slack_question,
                 text,
@@ -118,9 +129,27 @@ async def handle_slack_question(text, user_id, channel_id, thread_ts, request):
         request=request,
         background_tasks=None
     )
-
-    blocks = format_answer_to_blocks(result["answer"], user_id)
-    send_message_to_slack(channel_id, blocks, thread_ts)
+    log_info(
+        "Message sent to Slack",
+        trace_id=trace_id,
+        channel=channel_id,
+        thread_ts=thread_ts
+    )
+    try:
+        blocks = format_answer_to_blocks(result["answer"], user_id)
+        log_info(
+            "Formatted message sent to Slack",
+            trace_id=trace_id,
+            channel=channel_id,
+            thread_ts=thread_ts
+        )
+        send_message_to_slack(channel_id, blocks, thread_ts)
+    except Exception as e:
+        log_error(
+            "Slack processing failed",
+            trace_id=trace_id,
+            error=str(e)
+        )
 
 def is_real_question(text: str) -> bool:
     """
