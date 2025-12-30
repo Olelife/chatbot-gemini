@@ -4,6 +4,8 @@ import hmac
 import time
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from slack_sdk import WebClient
+
+from api.slack_home import publish_home_tab_br
 from core.config import settings
 from api.ask import process_question
 from services.slack_service import send_message_to_slack, slack_typing
@@ -105,6 +107,16 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
                 None,
                 request
             )
+
+    if event_type == "app_home_opened":
+        user_id = event.get("user")
+        log_info(
+            f"[SLACK] Home opened by {user_id}",
+            trace_id=trace_id,
+            channel=channel,
+            thread_ts=thread_ts
+        )
+        publish_home_tab_br(user_id)
 
     return {"ok": True}
 
