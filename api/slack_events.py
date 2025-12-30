@@ -65,16 +65,35 @@ async def slack_events(request: Request, background_tasks: BackgroundTasks):
         return {"ok": True}  # evita responderte a ti mismo
 
     if event_type in ["app_mention", "message"]:
-        slack_typing(channel, thread_ts)  # muestra escribiendo…
+        #slack_typing(channel, thread_ts)  # muestra escribiendo…
+        logger.info(f"[SLACK] Mention: {text}")
 
-        background_tasks.add_task(
-            handle_slack_question,
-            text,
-            user_id,
-            channel,
-            thread_ts,  # 👈 hilo para continuidad
-            request
-        )
+        question_intent = is_real_question(text)
+
+        if question_intent:
+            slack_typing(channel, thread_ts=thread_ts)
+            send_message_to_slack(
+                channel,
+                "⏳ Estou analisando sua pergunta...",
+                thread_ts=thread_ts
+            )
+            background_tasks.add_task(
+                handle_slack_question,
+                text,
+                user_id,
+                channel,
+                thread_ts,
+                request
+            )
+        else:
+            background_tasks.add_task(
+                handle_slack_question,
+                text,
+                user_id,
+                channel,
+                None,
+                request
+            )
 
     return {"ok": True}
 
@@ -102,3 +121,28 @@ async def handle_slack_question(text, user_id, channel_id, thread_ts, request):
 
     blocks = format_answer_to_blocks(result["answer"], user_id)
     send_message_to_slack(channel_id, blocks, thread_ts)
+
+def is_real_question(text: str) -> bool:
+    """
+    Determina si el mensaje requiere procesamiento profundo.
+    """
+    text = text.lower().strip()
+    is_question = "?" in text
+
+    greetings = ["hola", "oi", "olá", "ola", "hey", "buenas", "bom dia", "boa tarde"]
+
+    only_greeting = any(text == g for g in greetings)
+
+    # es pregunta real
+    if is_question:
+        return True
+
+    # si solo es greeting: no es pregunta
+    if only_greeting:
+        return False
+
+    # frases de una sola intención sin pregunta
+    if len(text.split()) < 3:
+        return False
+
+    return True
