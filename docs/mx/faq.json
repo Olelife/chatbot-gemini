@@ -148,7 +148,8 @@
     "pregunta": "Esquema de comisiones",
     "respuesta": "Tres niveles de comisiones: Agencia Master, Promotoría y Agente/Agencia CNSF.",
     "tags": ["estructura", "comisiones"]
-  }//,
+  }
+  //,
   //{
   //  "id": "faq_026",
   //  "pregunta": "¿El producto cuenta con devolución de dinero si no ocurre un siniestro?",
