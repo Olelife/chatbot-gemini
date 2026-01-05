@@ -2,7 +2,7 @@
   {
     "id": "faq_001",
     "pregunta": "Nombre del producto",
-    "respuesta": "El nombre del producto es Olé Life Individual México.",
+    "respuesta": "El nombre del producto es Olé Life.", // Individual México.",
     "tags": ["producto"]
   },
   {
@@ -14,37 +14,37 @@
   {
     "id": "faq_003",
     "pregunta": "Tiempo de respuesta del equipo de Underwriting cuando llega una solicitud",
-    "respuesta": "No se tiene un tiempo de respuesta definido.",
+    "respuesta": "Nuestro periodo de respuesta es de 72 horas.",
     "tags": ["underwriting", "operativa"]
   },
   {
     "id": "faq_004",
     "pregunta": "Tiempo que tiene el cliente para realizar el primer pago",
-    "respuesta": "El cliente tiene 30 días para realizar el primer pago luego de que se aprueba su póliza; de lo contrario la póliza se cancelará, cambiando de estado a 'CANCELADA - NO PAGADA'.",
+    "respuesta": "El cliente tiene 30 días calendario para realizar el primer pago luego de que se aprueba su póliza; de lo contrario la póliza se cancelará automáticamente, cambiando de estado a 'CANCELADA - NO PAGADA'",
     "tags": ["operativa", "pagos", "primer_pago"]
   },
   {
     "id": "faq_005",
     "pregunta": "Periodo de gracia",
-    "respuesta": "El periodo de gracia para México es de 30 días.",
+    "respuesta": "El periodo de gracia para México es de 30 días calendario.",
     "tags": ["operativa", "periodo_gracia"]
   },
   {
     "id": "faq_006",
     "pregunta": "Periodo de lapsado",
-    "respuesta": "El periodo de lapso de una póliza es de 12 meses adicionales al periodo de gracia.",
+    "respuesta": "El periodo de lapso de una póliza podrá permanecer cancelada por un periodo de 12 meses adicionales al periodo de gracia, periodo en el que el Asegurado podrá reactivarla cumpliendo con ciertas condiciones (pago de primas y obligaciones pendientes y llenado de solicitud/requerimientos).",
     "tags": ["operativa", "lapsado"]
   },
   {
     "id": "faq_007",
     "pregunta": "Reinstalación o reactivación de la póliza",
-    "respuesta": "Después de 30 días sin pago, la póliza se lapsa y se tienen 12 meses adicionales para reactivarla. Posterior a este tiempo, la póliza cambiará a estado cancelado.",
+    "respuesta": "Después a los 30 días calendario, la poliza se lapsa cancela, y se tiene 12 meses más para reactivar la poliza, posterior a este tiempo, la poliza cambiará a estado cancelado.",
     "tags": ["operativa", "reinstalacion"]
   },
   {
     "id": "faq_008",
     "pregunta": "¿Quién es socio de Olé en México?",
-    "respuesta": "Olé trabaja en colaboración con Seguros Patrimonial mediante un esquema de Fronting Fee y la licencia de Seguros Patrimonial.",
+    "respuesta": "Olé actúa en colaboración con Seguros Patrimonial, a través de una estructura de Fronting.",
     "tags": ["estructura", "companias"]
   },
   {
@@ -56,7 +56,7 @@
   {
     "id": "faq_010",
     "pregunta": "¿Qué empresa nos brinda reaseguro?",
-    "respuesta": "SwissRe brinda el reaseguro con un 80% de responsabilidad.",
+    "respuesta": "SwissRe con un 80% de riesgo la responsabilidad, Olé Insurance Group Corp. I.I. reasegura el 20% restante.",
     "tags": ["reaseguro", "companias"]
   },
   {
@@ -67,20 +67,20 @@
   },
   {
     "id": "faq_012",
-    "pregunta": "¿Qué coberturas adicionales tenemos?",
-    "respuesta": "Las coberturas adicionales son: Muerte o Invalidez Accidental, Enfermedades Graves y Protección contra el cáncer.",
+    "pregunta": "¿Qué coberturas tenemos?",
+    "respuesta": "La cobertura principal es Fallecimiento, las coberturas adicionales son: Pago anticipado por Enfermedad Terminal (incluido sin costo con la Cobertura Principal), Muerte o Invalidez Accidental, Enfermedades Graves (incluyendo cáncer) y Protección contra el cáncer.",
     "tags": ["coberturas", "adicionales"]
   },
   {
     "id": "faq_013",
     "pregunta": "¿Por cuánto me cubre la cobertura de Pago anticipado por enfermedad terminal?",
-    "respuesta": "Cubre el 50% de la suma asegurada de la cobertura principal (fallecimiento).",
+    "respuesta": "Cubre el 50% de la suma asegurada de la cobertura principal (fallecimiento) y hasta por USD$250,000.",
     "tags": ["coberturas", "enfermedad_terminal"]
   },
   {
     "id": "faq_014",
     "pregunta": "¿Si contrato Enfermedades Graves puedo contratar también Protección contra Cáncer?",
-    "respuesta": "No. La cobertura de Enfermedades Graves ya incluye Cáncer; solo puedes contratar una de ellas.",
+    "respuesta": "No. La cobertura de Enfermedades Graves ya incluye Cáncer; solo puedes contratar una de ellas, son excluyentes entre si.",
     "tags": ["coberturas", "cancer", "enfermedades_graves", "restricciones"]
   },
   {
@@ -92,19 +92,19 @@
   {
     "id": "faq_016",
     "pregunta": "¿Hasta qué edad puedo contratar un seguro?",
-    "respuesta": "Puedes contratar desde los 18 hasta los 65 años. La edad máxima de cobertura es 75 años, por lo que una persona de 65 años solo puede contratar un plazo de 10 años.",
+    "respuesta": "La edad de contratación va desde los 18 años hasta los 65 años mientras que la edad maxima de cobertura son los 75 años. La edad máxima de contratación dependerá del término que elija el Asegurado, es decir para un término 30 la edad máxima de contratación son 45 años, para un término 20 son 55 años, para un término 15 son 65 años y para un término 10 son 65.",
     "tags": ["edad", "elegibilidad"]
   },
   {
     "id": "faq_017",
     "pregunta": "¿Puedo contratar en una moneda distinta a dólares?",
-    "respuesta": "No. Solo se puede contratar en dólares americanos (USD).",
+    "respuesta": "No, el producto es en dólares americanos (USD).",
     "tags": ["moneda", "producto"]
   },
   {
     "id": "faq_018",
     "pregunta": "¿Cuáles son los montos mínimos y máximos de suma asegurada para la cobertura principal?",
-    "respuesta": "Los montos van desde USD $100,000 hasta USD $1,000,000.",
+    "respuesta": "Los montos van desde USD $100,000 hasta USD $1,000,000 (cuando se contratan ambas hay varias reglas que seguir, descritas más abajo).",
     "tags": ["suma_asegurada", "coberturas"]
   },
   {
@@ -116,7 +116,7 @@
   {
     "id": "faq_020",
     "pregunta": "¿Las coberturas de Enfermedades Graves o Protección contra Cáncer incluyen a mi familia?",
-    "respuesta": "No. Estas coberturas solo aplican al asegurado.",
+    "respuesta": "No. Estas coberturas solo aplican al asegurado,por ahorano tenemos cobertura familiar para ninguna cobertura.",
     "tags": ["coberturas", "familia"]
   },
   {
@@ -128,7 +128,7 @@
   {
     "id": "faq_022",
     "pregunta": "¿Puedo tener más de una cotización activa?",
-    "respuesta": "Sí, puedes tener más de una cotización activa.",
+    "respuesta": "Sí, puedes tener más de una cotización activa; sin embargo, la idea es tener 1 sola que se pueda ir modificando para guardar todo el tracking de cambios en un solo expediente.",
     "tags": ["cotizaciones", "operativa"]
   },
   {
@@ -148,17 +148,18 @@
     "pregunta": "Esquema de comisiones",
     "respuesta": "Tres niveles de comisiones: Agencia Master, Promotoría y Agente/Agencia CNSF.",
     "tags": ["estructura", "comisiones"]
-  },
-  {
-    "id": "faq_026",
-    "pregunta": "¿El producto cuenta con devolución de dinero si no ocurre un siniestro?",
-    "respuesta": "No. El producto no cuenta con devolución de dinero ni montos de rescate.",
-    "tags": ["rescate", "beneficios"]
-  },
-  {
-    "id": "faq_027",
-    "pregunta": "¿Si dejo de pagar mi cuota de seguro, me devolverán el dinero que aporté?",
-    "respuesta": "No. El producto no cuenta con devolución de dinero ni montos de rescate.",
-    "tags": ["pagos", "rescate"]
+  }
+  //,
+  //{
+  //  "id": "faq_026",
+  //  "pregunta": "¿El producto cuenta con devolución de dinero si no ocurre un siniestro?",
+  //  "respuesta": "No. El producto no cuenta con devolución de dinero ni montos de rescate.",
+  //  "tags": ["rescate", "beneficios"]
+  //},
+  //{
+  //  "id": "faq_027",
+  //  "pregunta": "¿Si dejo de pagar mi cuota de seguro, me devolverán el dinero que aporté?",
+  //  "respuesta": "No. El producto no cuenta con devolución de dinero ni montos de rescate.",
+  //  "tags": ["pagos", "rescate"]
   }
 ]
